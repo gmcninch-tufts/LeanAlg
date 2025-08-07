@@ -104,11 +104,15 @@ theorem dirsum_bilin_form_apply_single (φ : (i : ι) → BilinForm k (W i))
   
 
 theorem dirsum_bilin_form_apply (φ : (i : ι) → BilinForm k (W i))
-    (s : Finset ι) (v w : (i : ι) → W i) :
-  DirSumBilinForm φ (DirectSum.mk W s (fun i => v i)) (DirectSum.mk W s (fun i => w i)) = 
-  ∑ i ∈ s, (φ i) (v i) (w i) := by 
+    (s : Finset ι) (v w : ⨁ i, W i) :
+  DirSumBilinForm φ v w = 
+  ∑ i ∈ s, (φ i) (DirectSum.component k ι W i v) (DirectSum.component k ι W i w) := by 
+  simp
   
-  
+    -- induction (DirectSum.mk W s (fun i => v i)) using DirectSum.induction_on with
+    -- | zero => simp
+    -- | of => sorry
+    -- | add => sorry
 
   
   
