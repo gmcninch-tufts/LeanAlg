@@ -84,19 +84,30 @@ theorem dirsum_bilin_form_apply_single (φ : (i : ι) → BilinForm k (W i))
   = if h : i = j  then (φ i) v (Eq.recOn h.symm w) else 0 := by   
     by_cases hh : ↑i = ↑j
     case pos => 
-      simp
-      rw [ hh ]
-      sorry
-    case neg => sorry
---    rw [ DirectSum.component.of ]
+      subst hh
+      simp_all only [DirSumBilinForm, toModule_lof, compl₁₂_apply, id_coe, id_eq, 
+        component.lof_self, ↓reduceDIte]
+    case neg => 
+      simp [ DirectSum.component.of ]
+      simp_all only [ ↓reduceDIte ]
+      obtain ⟨vi, hi⟩ := i
+      obtain ⟨vj, hj⟩ := j
+      simp_all only [Subtype.mk.injEq]
+      split
+      case mk.mk.isTrue => 
+        next h =>
+        subst h
+        simp_all only [not_true_eq_false]
+      case mk.mk.isFalse =>
+        next h => simp_all only [map_zero]
+
   
 
 theorem dirsum_bilin_form_apply (φ : (i : ι) → BilinForm k (W i))
     (s : Finset ι) (v w : (i : ι) → W i) :
   DirSumBilinForm φ (DirectSum.mk W s (fun i => v i)) (DirectSum.mk W s (fun i => w i)) = 
   ∑ i ∈ s, (φ i) (v i) (w i) := by 
-  simp 
-  sorry 
+  
   
 
   
