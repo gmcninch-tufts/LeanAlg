@@ -77,28 +77,28 @@ def DirSumBilinForm (φ : (i : ι) → BilinForm k (W i)) :
 
 example (s : Finset ι) (v : (i : s) → W i) : (⨁ i, W i) := DirectSum.mk W s v
   
-example (φ : (i : ι) → BilinForm k (W i))
+theorem dirsum_bilin_form_apply_single (φ : (i : ι) → BilinForm k (W i))
     (s : Finset ι) (i j : ↑s) (v : W i) (w : W j) :
   DirSumBilinForm φ (DirectSum.lof k ι W i v)
                     (DirectSum.lof k ι W j w)
-  = if h : i = j  then (φ i) v (Eq.recOn h w) else 0 := by   
-  simp
-    
-
-example (i j : ι) (h : i = j) (v : W i) (w : W j ) : W i := Eq.rec h w 
-
-#check Eq.rec
-
-
-
+  = if h : i = j  then (φ i) v (Eq.recOn h.symm w) else 0 := by   
+    by_cases hh : ↑i = ↑j
+    case pos => 
+      simp
+      rw [ hh ]
+      sorry
+    case neg => sorry
+--    rw [ DirectSum.component.of ]
+  
 
 theorem dirsum_bilin_form_apply (φ : (i : ι) → BilinForm k (W i))
     (s : Finset ι) (v w : (i : ι) → W i) :
   DirSumBilinForm φ (DirectSum.mk W s (fun i => v i)) (DirectSum.mk W s (fun i => w i)) = 
   ∑ i ∈ s, (φ i) (v i) (w i) := by 
   simp 
+  sorry 
   
-  unfold toModule 
+
   
   
 end DirSumBilinForm
