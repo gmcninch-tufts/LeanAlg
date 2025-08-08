@@ -146,3 +146,15 @@ def HyperbolicBasisOfHyperbolicForm (ε : k)
     cond_lr := by aesop
     cond_rl := by aesop
 
+--------------------------------------------------------------------------------
+
+@[simp]
+def OrthogonalSubsets (β : BilinForm k V) (S₁ S₂ : Set V) : Prop :=
+  ∀ x₁ ∈ S₁, ∀ x₂ ∈ S₂, β.IsOrtho x₁ x₂ ∧ β.IsOrtho x₂ x₁
+
+notation:100 lhs:100 " ⟂[" bilin:100 "] " rhs:100 => 
+  OrthogonalSubsets (β := bilin) (S₁ := lhs) (S₂ := rhs)
+
+
+notation:90 bilin:90 "-[|" subspace:90 "] " => 
+  BilinForm.restrict bilin subspace

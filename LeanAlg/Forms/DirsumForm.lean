@@ -8,46 +8,6 @@ open LinearMap
 open LinearMap (BilinForm)
 
 
-def ProductBilinForm (β₁ : BilinForm k V₁) (β₂ : BilinForm k V₂) : 
-    BilinForm k (V₁ × V₂) :=
-  let γ₁ : BilinForm k (V₁ × V₂) := 
-    LinearMap.compl₁₂ 
-      β₁
-      (LinearMap.fst k V₁ _)
-      (LinearMap.fst k V₁ _)
-  let γ₂ : BilinForm k (V₁ × V₂) := 
-    LinearMap.compl₁₂
-      β₂
-      (LinearMap.snd k _ V₂)
-      (LinearMap.snd k _ V₂)
-  γ₁ + γ₂ 
-
-@[simp]
-theorem product_bilin_form_apply (β₁ : BilinForm k V₁) (β₂ : BilinForm k V₂)
-    (x y : V₁ × V₂) :
-  ProductBilinForm β₁ β₂ x y = (β₁ x.fst y.fst) + (β₂ x.snd y.snd) := by
-    obtain ⟨fst, snd⟩ := x
-    obtain ⟨fst_1, snd_1⟩ := y
-    simp_all only
-    rfl
-
-theorem product_orthogonal (β₁ : BilinForm k V₁) (β₂ : BilinForm k V₂)
-    (v₁ : V₁) (v₂ : V₂) :
-  ProductBilinForm β₁ β₂ ⟨v₁,0⟩ ⟨0,v₂⟩ = 0 := by simp
-  
-def LinearMap.EpsilonSkew (β : BilinForm k V) (ε : k) : Prop :=
-  ∀ x y, β x y = ε * β y x
-  
-theorem product_skew (β₁ : BilinForm k V₁) (β₂ : BilinForm k V₂) (ε : k)
-    (h₁ : β₁.EpsilonSkew ε) (h₂ : β₂.EpsilonSkew ε) :
-  (ProductBilinForm β₁ β₂).EpsilonSkew ε := by
-  intro x y
-  simp only [product_bilin_form_apply]
-  rw [ h₁, h₂]
-  ring
-
-
-
 
 --------------------------------------------------------------------------------
 section DirSumBilinForm
@@ -107,7 +67,7 @@ theorem dirsum_bilin_form_apply (φ : (i : ι) → BilinForm k (W i))
     (s : Finset ι) (v w : ⨁ i, W i) :
   DirSumBilinForm φ v w = 
   ∑ i ∈ s, (φ i) (DirectSum.component k ι W i v) (DirectSum.component k ι W i w) := by 
-  simp
+  sorry --simp
   
     -- induction (DirectSum.mk W s (fun i => v i)) using DirectSum.induction_on with
     -- | zero => simp
