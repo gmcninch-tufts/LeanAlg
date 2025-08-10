@@ -3,7 +3,8 @@ import Mathlib
 variable {k V V₁ V₂ : Type} [Field k]
          [AddCommGroup V] [AddCommGroup V₁] [AddCommGroup V₂]
          [Module k V] [Module k V₁] [Module k V₂]
-         
+
+
 open LinearMap
 open LinearMap (BilinForm)
 
@@ -20,6 +21,7 @@ variable {ι : Type} [DecidableEq ι]
 variable {W : ι → Type}
          [(i : ι) → AddCommGroup (W i)]
          [(i : ι) → Module k (W i)]
+
 
 example : Module k (⨁ i, W i) := inferInstance 
 
@@ -62,11 +64,17 @@ theorem dirsum_bilin_form_apply_single (φ : (i : ι) → BilinForm k (W i))
         next h => simp_all only [map_zero]
 
   
-
-theorem dirsum_bilin_form_apply (φ : (i : ι) → BilinForm k (W i))
-    (s : Finset ι) (v w : ⨁ i, W i) :
+example (a b : ι →₀ k) :
+    ∑ i ∈ (a.support ⊓ b.support), (a i)*(b i) =
+    ∑ i ∈ (a.support ⊔ b.support), (a i)*(b i) := by
+    sorry -- simp
+    
+theorem dirsum_bilin_form_apply [(i : ι) → (x : W i) → Decidable (x ≠ 0)]
+    (φ : (i : ι) → BilinForm k (W i))
+    (v w : ⨁ i, W i) :
   DirSumBilinForm φ v w = 
-  ∑ i ∈ s, (φ i) (DirectSum.component k ι W i v) (DirectSum.component k ι W i w) := by 
+  ∑ i ∈ (DFinsupp.support v) ⊓ (DFinsupp.support w), 
+  (φ i) (DirectSum.component k ι W i v) (DirectSum.component k ι W i w) := by 
   sorry --simp
   
     -- induction (DirectSum.mk W s (fun i => v i)) using DirectSum.induction_on with
@@ -75,6 +83,7 @@ theorem dirsum_bilin_form_apply (φ : (i : ι) → BilinForm k (W i))
     -- | add => sorry
 
   
+#check DFinsupp.support  
   
 end DirSumBilinForm
 

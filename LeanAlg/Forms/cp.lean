@@ -2,10 +2,9 @@ import Mathlib
 
 variable {F V : Type*} [Field F] [AddCommGroup V] [Module F V]
 
-
-scoped[RationalFunctionFields] notation:9000 F:9000 "(X)" => RatFunc F
-
 open Polynomial
+
+-- reminder: check that Sahan provides a proof of this, based on his work of 2025-07
 
 theorem cassels_pfister (φ : QuadraticForm F V) [Invertible (2 : F)]
   (f : F[X]) (v : TensorProduct F (RatFunc F) V) (h : φ.baseChange (RatFunc F) v = f)
