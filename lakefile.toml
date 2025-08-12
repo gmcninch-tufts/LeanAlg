@@ -5,8 +5,9 @@ defaultTargets = ["LeanAlg"]
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
-autoImplicit = false
+#autoImplicit = false
 weak.linter.mathlibStandardSet = true
+linter.unusedVariables = false
 maxSynthPendingDepth = 3
 
 [[require]]

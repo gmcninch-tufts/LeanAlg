@@ -11,6 +11,23 @@ def IsCr (r : ℕ) : Prop :=
   MvPolynomial.IsHomogeneous f d → d^r < n → 
   ∃ v  : Fin n → k, f.eval v = 0 ∧ v ≠ 0
 
+def IsCr' (r : {q :ℚ // q≥0 }) : Prop :=
+  ∀ (n : ℕ),
+  ∀ f : MvPolynomial (Fin n) k, 
+  ∀ {d : ℕ},
+  MvPolynomial.IsHomogeneous f d → (d:ℝ) ^ (r:ℝ) < (n:ℝ) → 
+  ∃ v  : Fin n → k, f.eval v = 0 ∧ v ≠ 0
+
+
+-- def IsCr (r : ℕ) : Prop :=
+--   ∀ (n : ℕ),
+--   ∀ (V:Type), [AddCommGroup V] → [Module k V] → Module.finRank k V = n → 
+--   ∀ f : SymmetricAlgebra k V, 
+--   ∀ {d : ℕ},
+--   SymmetricAlgebra.IsHomogeneous f d → d^r < n → 
+--   ∃ v  : Fin n → k, f.eval v = 0 ∧ v ≠ 0
+
+
 def IsC1 : Prop := IsCr k 1
 
 theorem finext_c1_of_c1 (L : Type μ) [Field L] [Algebra k L]
@@ -75,6 +92,6 @@ example : (M k 1).det = MvPolynomial.X (0,0) := by
 
 example : (M k 2).det = MvPolynomial.X (0,0) * MvPolynomial.X ⟨1,1⟩ -  
                         MvPolynomial.X ⟨0,1⟩ * MvPolynomial.X ⟨1,0⟩ := by 
-                            
+  sorry
 
 

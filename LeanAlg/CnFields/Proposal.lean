@@ -1,0 +1,13 @@
+import Mathlib
+
+universe μ ν 
+
+variable (k : Type μ) [Field k]
+
+def IsCr' (r : {q :ℚ // q≥0 }) : Prop :=
+  ∀ (n : ℕ),
+  ∀ f : MvPolynomial (Fin n) k, 
+  ∀ {d : ℕ},
+  MvPolynomial.IsHomogeneous f d → (d:ℝ) ^ (r:ℝ) < (n:ℝ) → 
+  ∃ v  : Fin n → k, f.eval v = 0 ∧ v ≠ 0
+
