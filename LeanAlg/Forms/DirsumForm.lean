@@ -23,10 +23,6 @@ variable {W : ι → Type}
          [(i : ι) → Module k (W i)]
 
 
-example : Module k (⨁ i, W i) := inferInstance 
-
-example (f : (j : ι) → W j →ₗ[k] V) : (⨁ i, W i) →ₗ[k] V := DirectSum.toModule k ι V f 
-
 @[simp]
 def DirSumBilinForm (φ : (i : ι) → BilinForm k (W i)) :
   BilinForm k (⨁ i, W i) := 
@@ -62,12 +58,6 @@ theorem dirsum_bilin_form_apply_single (φ : (i : ι) → BilinForm k (W i))
         simp_all only [not_true_eq_false]
       case mk.mk.isFalse =>
         next h => simp_all only [map_zero]
-
-  
-example (a b : ι →₀ k) :
-    ∑ i ∈ (a.support ⊓ b.support), (a i)*(b i) =
-    ∑ i ∈ (a.support ⊔ b.support), (a i)*(b i) := by
-    sorry -- simp
     
 theorem dirsum_bilin_form_apply [(i : ι) → (x : W i) → Decidable (x ≠ 0)]
     (φ : (i : ι) → BilinForm k (W i))
@@ -75,15 +65,17 @@ theorem dirsum_bilin_form_apply [(i : ι) → (x : W i) → Decidable (x ≠ 0)]
   DirSumBilinForm φ v w = 
   ∑ i ∈ (DFinsupp.support v) ⊓ (DFinsupp.support w), 
   (φ i) (DirectSum.component k ι W i v) (DirectSum.component k ι W i w) := by 
-  sorry --simp
-  
-    -- induction (DirectSum.mk W s (fun i => v i)) using DirectSum.induction_on with
-    -- | zero => simp
-    -- | of => sorry
-    -- | add => sorry
+  induction v using DirectSum.induction_on with
+  | zero => simp 
+  | of i x => 
+      --rw [ DirectSum.support_of  ]
+      -- simp only [ Finset.inf_eq_inter ]     
+      -- have : {i} ∩ DFinsupp.support w ⊆ {i} := fun j => by simp_all
+      rw [ Finset.sum_eq_single i ]
+      case of.h₁ => simp
+    
+      sorry
+  | add => sorry
 
   
-#check DFinsupp.support  
-  
-end DirSumBilinForm
 
