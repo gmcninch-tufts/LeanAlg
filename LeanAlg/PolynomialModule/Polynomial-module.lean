@@ -1,9 +1,5 @@
-import Mathlib.Tactic
-import Mathlib.Algebra.Polynomial.Module.Basic
-import Mathlib.Algebra.Category.ModuleCat.ChangeOfRings
+import Mathlib
 
-
-namespace PolyEquiv
 open Polynomial
 open TensorProduct
 
@@ -124,7 +120,6 @@ def PolynomialModuleEquivTensorProduct : (R[X] ⊗[R] M) ≃ₗ[R[X]] (Polynomia
           induction h using Polynomial.induction_on' with
           | add p q hp hq =>
               rw [ add_tmul ]
-              -- unfold ψ at *
               simp_all only [DistribMulAction.toModuleEnd_apply, 
                 LinearMap.coe_restrictScalars,
                 DistribMulAction.toLinearMap_apply, incl ]
@@ -189,4 +184,4 @@ def PolynomialModuleEquivTensorProduct : (R[X] ⊗[R] M) ≃ₗ[R[X]] (Polynomia
    }
 
 end
-end PolyEquiv
+
