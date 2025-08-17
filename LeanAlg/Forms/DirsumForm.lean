@@ -16,11 +16,11 @@ open BigOperators
 
 variable {ι : Type} [DecidableEq ι]
 
-variable {R : Type} [Commking R]
+variable {R : Type} [CommRing R]
 variable {W : ι → Type}
          [(i : ι) → AddCommGroup (W i)]
          [(i : ι) → Module R (W i)]
---         [(i : ι) → DecidableEq (W i)]
+
 
 @[simp]
 def DirSumBilinForm (φ : (i : ι) → BilinForm R (W i)) :
@@ -32,10 +32,6 @@ def DirSumBilinForm (φ : (i : ι) → BilinForm R (W i)) :
       (component R ι W j)
   DirectSum.toModule R ι ((⨁ i, W i) →ₗ[R] R) γ
 
-theorem DirSumBilinForm.finsupp_left (φ : (i : ι) → BilinForm R (W i))
-  (v : ⨁ i, W i) : Finsupp
-
-example (s : Finset ι) (v : (i : s) → W i) : (⨁ i, W i) := DirectSum.mk W s v
 
 theorem dirsum_bilin_form_apply_single (φ : (i : ι) → BilinForm R (W i))
     (s : Finset ι) (i j : ↑s) (v : W i) (w : W j) :
@@ -63,27 +59,27 @@ theorem dirsum_bilin_form_apply_single (φ : (i : ι) → BilinForm R (W i))
 
 
 theorem dirsum_bilin_form_apply [(i : ι) → (x : W i) → Decidable (x ≠ 0)]
-    (φ : (i : ι) → BilinForm k (W i))
+    (φ : (i : ι) → BilinForm R (W i))
     (v w : ⨁ i, W i):
   DirSumBilinForm φ v w =
   ∑ i ∈ (DFinsupp.support v) ⊓ (DFinsupp.support w),
-  (φ i) (DirectSum.component k ι W i v) (DirectSum.component k ι W i w) := by
+  (φ i) (DirectSum.component R ι W i v) (DirectSum.component R ι W i w) := by
   induction v using DirectSum.induction_on with
   | zero => simp
   | of j x =>
-      rw [ ← DirectSum.lof_eq_of k ι W j ]
+      rw [ ← DirectSum.lof_eq_of R ι W j ]
       rw [ Finset.sum_eq_single j ]
-      · rw [ DirectSum.component.of k _ j]
+      · rw [ DirectSum.component.of R _ j]
         simp
       · intro i hi hij
-        rw [DirectSum.component.of k i j ]
+        rw [DirectSum.component.of R i j ]
         simp_all only [Finset.inf_eq_inter, Finset.mem_inter, DFinsupp.mem_support_toFun, ne_eq]
         obtain ⟨left, right⟩ := hi
         split
         next h => exfalso; exact hij h.symm
         next h => simp_all only [map_zero, LinearMap.zero_apply]
       · intro hj
-        rw [ DirectSum.component.of k j j]
+        rw [ DirectSum.component.of R j j]
         split
         next h =>
           contrapose hj
