@@ -12,28 +12,25 @@ For a polynomial `f:R[X]`, and an R-module M, multiplication
 by f determines an R-module homomorphism `M →ₗ[R] PolynomialModule R M`
 -/
 def MulByPoly (f : R[X]) : M →ₗ[R] PolynomialModule R M :=
-    (DistribMulAction.toModuleEnd R[X] (PolynomialModule R M) f) ∘ₗ
-       (PolynomialModule.lsingle R 0)
+  (DistribMulAction.toModuleEnd R[X] (PolynomialModule R M) f) ∘ₗ
+    (PolynomialModule.lsingle R 0)
 
 /-- The bilinear mapping `R[X] →ₗ[R] M →ₗ[R] PolynomialModule R M`
 given by the rule `f ↦ m ↦ (MulByPoly f) m`
 -/
 def PolynomialModule.Pairing (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M] :
-     R[X] →ₗ[R] M →ₗ[R] PolynomialModule R M where
-   toFun :=  MulByPoly
-   map_add' f g := by
-     ext
-     rw [ MulByPoly, LinearMap.coe_mk, AddHom.coe_mk, LinearMap.add_apply ]
-     exact  add_smul f g _
-   map_smul' t f := by
-     rw [ RingHom.id_apply ]
-     ext
-     unfold MulByPoly
-     simp_all only [LinearMap.smul_apply, DistribMulAction.toModuleEnd_apply, 
-       LinearMap.coe_comp, Function.comp_apply, LinearMap.coe_restrictScalars, 
-       DistribMulAction.toLinearMap_apply, smul_assoc]
+    R[X] →ₗ[R] M →ₗ[R] PolynomialModule R M where
+  toFun :=  MulByPoly
+  map_add' f g := by
+    ext
+    rw [ MulByPoly, LinearMap.coe_mk, AddHom.coe_mk, LinearMap.add_apply ]
+    exact  add_smul f g _
+  map_smul' t f := by
+    rw [ RingHom.id_apply ]
+    ext
+    unfold MulByPoly
+    simp 
 
-open PolynomialModule in
 /--
 There is a `R[X]`-linear mapping `R[X] ⊗[R] M → PolynomialModule R M`
 determined (via `TensorProduct.lift`) by the bilinear mapping `BilinToPolyMod`
@@ -68,35 +65,13 @@ def TensorMap (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M] :
           rw [ hx ,hy ]
     }
 
-/-- apply `Finsupp.sum_single_index` on PolynomialModule.lsingle
--/
-lemma pm_sum_lsingle_index' {N : Type*} [AddCommGroup N] [Module R N] {j : ℕ} {y : M}
-    {g : ℕ → M → N} (hg : g j 0 = 0) :
-    Finsupp.sum ((PolynomialModule.lsingle R j) y) g = g j y :=  by
-  apply Finsupp.sum_single_index ?_
-  · exact hg
-
-/-- apply `Finsupp.sum_single_index` on PolynomialModule.single
--/
-lemma pm_sum_single_index' {N : Type*} [AddCommGroup N] [Module R N] {j : ℕ} {y : M}
-    {g : ℕ → M → N} (hg : g j 0 = 0) :
-    Finsupp.sum ((PolynomialModule.single R j) y) g = g j y :=  by
-  apply Finsupp.sum_single_index ?_
-  · exact hg
-
-lemma PolynomialModule.monomial_smul_lsingle' {R : Type u_1} {M : Type u_2}
-    [CommRing R] [AddCommGroup M] [Module R M] (i : ℕ) (r : R) (j : ℕ) (m : M) :
-    (Polynomial.monomial i) r • (PolynomialModule.lsingle R j) m =
-    (PolynomialModule.lsingle R (i + j)) (r • m) := by
-  apply PolynomialModule.monomial_smul_single
-
 /-- There is an `R[X]` linear equivalence `(R[X] ⊗[R] M) ≃ₗ[R[X]]
    (PolynomialModule R M)` The `toFun` construction comes from
    `TensorMap`. The `left_inv` and `right_inv` conditions are proved
    using `TensorProduct.induction_on`, `Polynomial.induction_on` and
    `PolynomialModule.induction_on`
 -/
-def PolynomialModuleEquivTensorProduct : (R[X] ⊗[R] M) ≃ₗ[R[X]] (PolynomialModule R M) :=
+def TensorProductEquivPolynomialModule : (R[X] ⊗[R] M) ≃ₗ[R[X]] (PolynomialModule R M) :=
   let incl : ℕ → M →ₗ[R] R[X] ⊗[R] M := fun n =>
     TensorProduct.mk R R[X] M (monomial n 1)
   { toFun := (TensorMap R M).toFun
@@ -127,7 +102,8 @@ def PolynomialModuleEquivTensorProduct : (R[X] ⊗[R] M) ≃ₗ[R[X]] (Polynomia
               rw [←hp, ←hq]
               simp only [map_add]
           | monomial j t =>
-              simp only [DistribMulAction.toModuleEnd_apply, LinearMap.coe_restrictScalars,
+              simp only [DistribMulAction.toModuleEnd_apply, 
+                LinearMap.coe_restrictScalars,
                 DistribMulAction.toLinearMap_apply]
               rw [Finsupp.lsum_apply R incl]
               have : ((monomial j) t • (PolynomialModule.lsingle R 0) y)
@@ -137,16 +113,14 @@ def PolynomialModuleEquivTensorProduct : (R[X] ⊗[R] M) ≃ₗ[R[X]] (Polynomia
               
               have pm_sum_lsingle_index {z : M}
                   {g : ℕ → M → R[X] ⊗[R] M} (hg : g j 0 = 0) :
-                  Finsupp.sum ((PolynomialModule.lsingle R j) z) g = g j z :=  by
+                  Finsupp.sum ((PolynomialModule.lsingle R j) z) g = g j z := by
                 apply Finsupp.sum_single_index ?_
                 · exact hg
               rw [pm_sum_lsingle_index (z := t•y) (by simp only [map_zero])]
-              
-              · unfold incl
-                simp only [map_smul, mk_apply]
-                rw [TensorProduct.smul_tmul', Polynomial.smul_monomial]
-                simp only [smul_eq_mul, mul_one]
-
+              unfold incl
+              simp only [map_smul, mk_apply]
+              rw [TensorProduct.smul_tmul', Polynomial.smul_monomial]
+              simp only [smul_eq_mul, mul_one]
 
       | add w₁ w₂ hw₁ hw₂ =>
           rw [ (TensorMap R M).map_add' w₁ w₂ ]
@@ -184,4 +158,5 @@ def PolynomialModuleEquivTensorProduct : (R[X] ⊗[R] M) ≃ₗ[R[X]] (Polynomia
    }
 
 end
+
 
