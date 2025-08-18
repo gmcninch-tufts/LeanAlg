@@ -1,4 +1,48 @@
+/-
+Copyright (c) 2025 George McNinch. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: George McNinch
+-/
+
 import Mathlib
+
+/-!
+# `PolynomialModule` and the tensor product
+
+For a commutative ring `R` and an `R`-module `M`, there is an
+equivalence between the `R[X]`-modules `R[X] ⊗[R] M` and
+`PolynomialModule R M`; see `TensorProductEquivPolynomialModule`.
+
+To obtain the equivalence, we first construct the bilinear mapping
+`R[X] →ₗ[R] M →ₗ[R] PolynomialModule R M`; see `MulByPolynomial` and
+`Pairing`. 
+
+Uisng `Pairing`, the universal property of the tensor product
+(`TensorProduct.lift`) then yields the required `toFun` for the
+equivalence. See `TensorMap` for the construction
+
+```
+R[X] ⊗[R] M →ₗ[R[X]] PolynomialModule R M 
+```
+
+including confirmation that this mapping is `R[X]`-linear.
+
+Finally, the `invFun` 
+
+```
+PolynomialModule R M →ₗ[R] R[X] ⊗[R] M
+
+```
+
+is constructed in `TensorProductEquivPolynomialModule` from the
+inclusions mappings
+
+```
+fun (n : ℕ) => TensorProduct.mk R R[X] M (monomial n 1) : ℕ → M →ₗ[R] R[X] ⊗[R] M
+
+```
+using `Finsupp.lsum R`.
+-/
 
 open Polynomial
 open TensorProduct
@@ -41,11 +85,13 @@ The mapping property of the tensor product gives the underyling
 `R`-linear mapping, which is then confirmed to be `R[X]`-linear using
 `TensorProduct.induction_on`
 -/
-def TensorMap (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M] :
+def TensorProduct.mk (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M] :
     R[X] ⊗[R] M →ₗ[R[X]] PolynomialModule R M := 
   let φ : R[X] ⊗[R] M →ₗ[R] PolynomialModule R M := lift (Pairing R M)
-  { toFun := φ.toFun,
-    map_add' := φ.map_add,
+  { toFun := φ.toFun
+  
+    map_add' := φ.map_add
+    
     map_smul' := by
       intro g x
       rw [ RingHom.id_apply
@@ -67,20 +113,21 @@ def TensorMap (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M] :
           rw [ hx ,hy ]
     }
 
+end PolynomialModule
+
 /-- There is an `R[X]` linear equivalence `(R[X] ⊗[R] M) ≃ₗ[R[X]]
-   (PolynomialModule R M)` The `toFun` is given by
-   `TensorMap`. The `left_inv` and `right_inv` conditions are proved
-   using `TensorProduct.induction_on`, `Polynomial.induction_on` and
-   `PolynomialModule.induction_on`
+   (PolynomialModule R M)`. 
+   
+   The `toFun` is given by `PolynomialMap.TensorProduct.mk`.
 -/
 def TensorProductEquivPolynomialModule : (R[X] ⊗[R] M) ≃ₗ[R[X]] (PolynomialModule R M) :=
   let incl : ℕ → M →ₗ[R] R[X] ⊗[R] M := fun n =>
     TensorProduct.mk R R[X] M (monomial n 1)
-  { toFun := (TensorMap R M).toFun
+  { toFun := (PolynomialModule.TensorProduct.mk R M).toFun
 
-    map_add' := (TensorMap R M).map_add
+    map_add' := (PolynomialModule.TensorProduct.mk R M).map_add
 
-    map_smul' := (TensorMap R M).map_smul
+    map_smul' := (PolynomialModule.TensorProduct.mk R M).map_smul
 
     invFun := Finsupp.lsum R incl
 
@@ -89,7 +136,8 @@ def TensorProductEquivPolynomialModule : (R[X] ⊗[R] M) ≃ₗ[R[X]] (Polynomia
       induction x using TensorProduct.induction_on with
       | zero => simp
       | tmul h y  =>
-          simp only [TensorMap, PolynomialModule.Pairing, MulByPolynomial,
+          simp only [PolynomialModule.TensorProduct.mk, PolynomialModule.Pairing, 
+                     PolynomialModule.MulByPolynomial,
                      AddHom.toFun_eq_coe, LinearMap.coe_toAddHom,
                      AddHom.coe_mk, lift.tmul, LinearMap.coe_mk
                      ]
@@ -120,12 +168,12 @@ def TensorProductEquivPolynomialModule : (R[X] ⊗[R] M) ≃ₗ[R[X]] (Polynomia
                 · exact hg
               rw [pm_sum_lsingle_index (z := t•y) (by simp only [map_zero])]
               unfold incl
-              simp only [mk_apply] --simp only [map_smul, mk_apply]
-              rw [Polynomial.smul_monomial] --rw [TensorProduct.smul_tmul', Polynomial.smul_monomial]
+              simp only [map_smul, TensorProduct.mk_apply]
+              rw [TensorProduct.smul_tmul', Polynomial.smul_monomial]
               simp only [smul_eq_mul, mul_one]
 
       | add w₁ w₂ hw₁ hw₂ =>
-          rw [ (TensorMap R M).map_add' w₁ w₂ ]
+          rw [ (PolynomialModule.TensorProduct.mk R M).map_add' w₁ w₂ ]
           rw [ map_add ]
           rw [ hw₁, hw₂ ]
 
@@ -135,10 +183,10 @@ def TensorProductEquivPolynomialModule : (R[X] ⊗[R] M) ≃ₗ[R[X]] (Polynomia
       | zero => simp
       | add w₁ w₂ hw₁ hw₂ =>
           rw [ map_add ]
-          rw [ (TensorMap R M).map_add' ]
+          rw [ (PolynomialModule.TensorProduct.mk R M).map_add' ]
           rw [ hw₁, hw₂ ]
       | single j x =>
-          simp only [TensorMap, PolynomialModule.Pairing]
+          simp only [PolynomialModule.TensorProduct.mk, PolynomialModule.Pairing]
           rw [Finsupp.lsum_apply R incl]
           have pm_sum_single_index {z : M}
               {g : ℕ → M → R[X] ⊗[R] M} (hg : g j 0 = 0) :
@@ -146,8 +194,8 @@ def TensorProductEquivPolynomialModule : (R[X] ⊗[R] M) ≃ₗ[R[X]] (Polynomia
             apply Finsupp.sum_single_index ?_
             · exact hg
           rw [pm_sum_single_index (by simp)]
-          simp_all only [MulByPolynomial, DistribMulAction.toModuleEnd_apply, mk_apply, 
-            AddHom.toFun_eq_coe, lift.tmul',
+          simp_all only [PolynomialModule.MulByPolynomial, DistribMulAction.toModuleEnd_apply, 
+            mk_apply, AddHom.toFun_eq_coe, lift.tmul',
             LinearMap.coe_mk, AddHom.coe_mk, LinearMap.coe_comp, LinearMap.coe_restrictScalars, 
             Function.comp_apply, DistribMulAction.toLinearMap_apply, incl]
           have monomial_smul_lsingle (j : ℕ) (r : R) (k : ℕ) (m : M) :
@@ -160,5 +208,4 @@ def TensorProductEquivPolynomialModule : (R[X] ⊗[R] M) ≃ₗ[R[X]] (Polynomia
    }
 
 end
-
 
