@@ -17,9 +17,9 @@ To obtain the equivalence, we first construct the bilinear mapping
 `R[X] →ₗ[R] M →ₗ[R] PolynomialModule R M`; see `MulByPolynomial` and
 `Pairing`. 
 
-Uisng `Pairing`, the universal property of the tensor product
-(`TensorProduct.lift`) then yields the required `toFun` for the
-equivalence. See `TensorMap` for the construction
+The universal property of the tensor product (`TensorProduct.lift`)
+then converts `Pairing` into the required `toFun` for the
+equivalence. See `TensorMap` for the construction of the mapping
 
 ```
 R[X] ⊗[R] M →ₗ[R[X]] PolynomialModule R M 
@@ -78,7 +78,7 @@ def Pairing (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M] :
     simp 
 
 /--
-There is a `R[X]`-linear mapping `R[X] ⊗[R] M → PolynomialModule R M`
+The `R[X]`-linear mapping `R[X] ⊗[R] M → PolynomialModule R M`
 build from the bilinear mapping `BilinToPolyMod` `TensorProduct.lift`.
 
 The mapping property of the tensor product gives the underyling
@@ -115,10 +115,7 @@ def TensorProduct.mk (R M : Type*) [CommRing R] [AddCommGroup M] [Module R M] :
 
 end PolynomialModule
 
-/-- There is an `R[X]` linear equivalence `(R[X] ⊗[R] M) ≃ₗ[R[X]]
-   (PolynomialModule R M)`. 
-   
-   The `toFun` is given by `PolynomialMap.TensorProduct.mk`.
+/-- The `R[X]` linear equivalence `(R[X] ⊗[R] M) ≃ₗ[R[X]] (PolynomialModule R M)`.
 -/
 def TensorProductEquivPolynomialModule : (R[X] ⊗[R] M) ≃ₗ[R[X]] (PolynomialModule R M) :=
   let incl : ℕ → M →ₗ[R] R[X] ⊗[R] M := fun n =>
