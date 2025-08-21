@@ -53,15 +53,25 @@ def MvPolynomialToSymmetricAlgebra [Module.Free R M] (ι : Type ω) [Fintype ι]
     commutes' := by simp_all
   }
 
+lemma mv_polynomial_to_symmetric_algebra_appl_var [Module.Free R M] (ι : Type ω) [Fintype ι]
+    (b : Module.Basis ι R M) (i : ι) :
+    MvPolynomialToSymmetricAlgebra ι b (MvPolynomial.X i) = SymmetricAlgebra.ι R M (b i) := by
+  simp only [MvPolynomialToSymmetricAlgebra, AlgHom.coe_mk, MvPolynomial.eval₂Hom_X']
+
+
 @[simp]
 def SymmetricAlgebraToMvPolynomial [Module.Free R M] (ι : Type ω) [Fintype ι]
     (b : Module.Basis ι R M) :
     SymmetricAlgebra R M →ₐ[R] MvPolynomial ι R :=
-  have φ : M →ₗ[R] MvPolynomial ι R := b.constr R MvPolynomial.X
+  let φ : M →ₗ[R] MvPolynomial ι R := b.constr R MvPolynomial.X
+  SymmetricAlgebra.lift φ
 
-  { SymmetricAlgebra.lift φ with
-    commutes' := by simp_all
-  }
+lemma symmetric_algebra_to_mv_polynomial_appl_basis [Module.Free R M] (ι : Type ω) [Fintype ι]
+    (b : Module.Basis ι R M) (i : ι) :
+    SymmetricAlgebraToMvPolynomial ι b (SymmetricAlgebra.ι R M (b i)) = MvPolynomial.X i := by
+  simp only [SymmetricAlgebraToMvPolynomial,
+             SymmetricAlgebra.lift_ι_apply,
+             Module.Basis.constr_basis]
 
 def SymmectricAlgebraEquivMvPolynomial [Module.Free R M] (σ : Type ω) [Fintype σ]
     (b : Module.Basis σ R M) :
@@ -73,7 +83,7 @@ def SymmectricAlgebraEquivMvPolynomial [Module.Free R M] (σ : Type ω) [Fintype
     induction f using SymmetricAlgebra.induction_basis σ b with
     | algebraMap => simp
     | basis i =>
-        simp    
+        simp
         suffices h : (SymmetricAlgebra.ι R M) (b i) =
             (fun₀ | i => (1:R)) i • (SymmetricAlgebra.ι R M) (b i) by
           rw [ Finset.sum_eq_single i ]
@@ -89,15 +99,40 @@ def SymmectricAlgebraEquivMvPolynomial [Module.Free R M] (σ : Type ω) [Fintype
         simp
     | unit => simp
     | mul f g mf mg =>
-      sorry
+      simp_all [map_mul]
     | add f g mf mg =>
-      sorry
+      simp_all [map_add]
   right_inv := by
     intro f
     induction f using MvPolynomial.induction_on with
     | C => simp
-    | add => sorry
-    | mul_X => sorry
+    | add =>
+      simp_all [map_add]
+    | mul_X p i h =>
+      rw [map_mul, map_mul]
+      rw [h]
+      rw [mv_polynomial_to_symmetric_algebra_appl_var,
+          symmetric_algebra_to_mv_polynomial_appl_basis]
   map_mul' := (SymmetricAlgebraToMvPolynomial σ b).map_mul
   map_add' := (SymmetricAlgebraToMvPolynomial σ b).map_add
   commutes' := by simp
+
+
+def SymmetricAlgebra.IsHomogeneous [Module.Free R M] [Fintype (Module.Free.ChooseBasisIndex R M)]
+    (f : SymmetricAlgebra R M) : Prop :=
+  let σ : Type ν := Module.Free.ChooseBasisIndex R M
+  let b : Module.Basis σ R M := Module.Free.chooseBasis R M
+  ∃ n, MvPolynomial.IsHomogeneous ((SymmectricAlgebraEquivMvPolynomial σ b) f) n
+
+def SymmetricAlgebra.IsHomogeneous' [Module.Free R M] [Fintype (Module.Free.ChooseBasisIndex R M)]
+    (f : SymmetricAlgebra R M) (n : ℕ) : 
+    (σ : Type) → [Fintype σ] → Module.Basis σ R M → Prop := fun σ => fun b =>
+  MvPolynomial.IsHomogeneous ((SymmectricAlgebraEquivMvPolynomial σ b) f) n
+
+
+def SymmetricAlgebra.MvPolynomial_degree_indep [Module.Free R M]
+    (σ₁ σ₂ : Type ω) [Fintype σ₁] [Fintype σ₂]
+    (b₁ : Module.Basis σ₁ R M) (b₂ : Module.Basis σ₂ R M) (f : SymmetricAlgebra R M) (n : ℕ) :
+    (MvPolynomial.IsHomogeneous ((SymmectricAlgebraEquivMvPolynomial σ₁ b₁) f) n
+    ↔
+    MvPolynomial.IsHomogeneous ((SymmectricAlgebraEquivMvPolynomial σ₂ b₂) f) n) := sorry
