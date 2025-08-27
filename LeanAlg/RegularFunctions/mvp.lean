@@ -46,18 +46,13 @@ theorem SymmetricAlgebra.induction_basis [Module.Free R M] (σ : Type ω) [Finty
 
 @[simp]
 def MvPolynomialToSymmetricAlgebra [Module.Free R M] (ι : Type ω) [Fintype ι]
-    (b : Module.Basis ι R M) :
-    MvPolynomial ι R  →ₐ[R]  SymmetricAlgebra R M :=
-  { MvPolynomial.eval₂Hom (algebraMap R (SymmetricAlgebra R M)) (fun (i : ι) =>
-      SymmetricAlgebra.ι R M (b i)) with
-    commutes' := by simp_all
-  }
+    (b : Module.Basis ι R M) : MvPolynomial ι R  →ₐ[R]  SymmetricAlgebra R M :=
+  MvPolynomial.aeval (fun (i : ι) => SymmetricAlgebra.ι R M (b i))
 
 lemma mv_polynomial_to_symmetric_algebra_appl_var [Module.Free R M] (ι : Type ω) [Fintype ι]
     (b : Module.Basis ι R M) (i : ι) :
     MvPolynomialToSymmetricAlgebra ι b (MvPolynomial.X i) = SymmetricAlgebra.ι R M (b i) := by
-  simp only [MvPolynomialToSymmetricAlgebra, AlgHom.coe_mk, MvPolynomial.eval₂Hom_X']
-
+  simp only [MvPolynomialToSymmetricAlgebra, MvPolynomial.aeval_X]  
 
 @[simp]
 def SymmetricAlgebraToMvPolynomial [Module.Free R M] (ι : Type ω) [Fintype ι]
@@ -117,17 +112,38 @@ def SymmectricAlgebraEquivMvPolynomial [Module.Free R M] (σ : Type ω) [Fintype
   map_add' := (SymmetricAlgebraToMvPolynomial σ b).map_add
   commutes' := by simp
 
+--------------------------------------------------------------------------------
 
-def SymmetricAlgebra.IsHomogeneous [Module.Free R M] [Fintype (Module.Free.ChooseBasisIndex R M)]
+def MvPolynomial.LinearForm {σ : Type} (v : σ →₀ R) : σ →  MvPolynomial σ R := 
+  fun i => v.linearCombination R MvPolynomial.X 
+
+def MvPolynomial.LinearChangeOfVars (σ : Type) [Fintype σ]
+    (f : (σ →₀ R) →ₗ[R] (σ →₀ R)) : MvPolynomial σ R →ₐ[R] MvPolynomial σ R :=
+  MvPolynomial.aeval (fun i => (f (Finsupp.single i (1 : R))).linearCombination R MvPolynomial.X)
+  
+  --(LinearForm (f (Finsupp.single (M := R) i (1 : R))))
+
+
+
+
+def SymmetricAlgebra.IsHomogeneous' [Module.Free R M] [Fintype (Module.Free.ChooseBasisIndex R M)]
     (f : SymmetricAlgebra R M) : Prop :=
   let σ : Type ν := Module.Free.ChooseBasisIndex R M
   let b : Module.Basis σ R M := Module.Free.chooseBasis R M
   ∃ n, MvPolynomial.IsHomogeneous ((SymmectricAlgebraEquivMvPolynomial σ b) f) n
 
-def SymmetricAlgebra.IsHomogeneous' [Module.Free R M] [Fintype (Module.Free.ChooseBasisIndex R M)]
-    (f : SymmetricAlgebra R M) (n : ℕ) : 
-    (σ : Type) → [Fintype σ] → Module.Basis σ R M → Prop := fun σ => fun b =>
+def SymmetricAlgebra.IsHomogeneous [Module.Free R M] [Fintype (Module.Free.ChooseBasisIndex R M)]
+    (f : SymmetricAlgebra R M) (n : ℕ) : Prop :=
+  ∀ (σ : Type), [Fintype σ] →
+  ∀ (b : Module.Basis σ R M), 
   MvPolynomial.IsHomogeneous ((SymmectricAlgebraEquivMvPolynomial σ b) f) n
+
+
+theorem is_homogeneous_of_basis (Module.Free R M)  (σ : Type) [Fintype σ]
+    (b : Basis σ R M) (n : ℕ) :
+    MvPolynomial.IsHomogeneous ((SymmectricAlgebraEquivMvPolynomial σ b) f) n
+    → SymmetricAlgebra.IsHomogeneous f  
+  
 
 
 def SymmetricAlgebra.MvPolynomial_degree_indep [Module.Free R M]
@@ -136,3 +152,8 @@ def SymmetricAlgebra.MvPolynomial_degree_indep [Module.Free R M]
     (MvPolynomial.IsHomogeneous ((SymmectricAlgebraEquivMvPolynomial σ₁ b₁) f) n
     ↔
     MvPolynomial.IsHomogeneous ((SymmectricAlgebraEquivMvPolynomial σ₂ b₂) f) n) := sorry
+
+example [Module.Free R M] [Fintype (Module.Free.ChooseBasisIndex R M)]
+  (f : SymmetricAlgebra R M) (n : ℕ) : SymmetricAlgebra.IsHomogeneous f n := by
+  intro σ ft b
+
