@@ -5,7 +5,11 @@
    "type": "git",
    "subDir": null,
    "scope": "leanprover-community",
+<<<<<<< HEAD
    "rev": "2955a4db4237eec566ac8baec574c1191abd2beb",
+=======
+   "rev": "bd5729ab30cb70a0957c737ccef82e4c97bba61b",
+>>>>>>> d07763cfa0fab36c6dbd18a62dc92d2e9c8e73ca
    "name": "mathlib",
    "manifestFile": "lake-manifest.json",
    "inputRev": "master",
@@ -75,7 +79,11 @@
    "type": "git",
    "subDir": null,
    "scope": "leanprover-community",
+<<<<<<< HEAD
    "rev": "9e2a0dd176ab4bb5bc5f10e1f5de26af3e094cf4",
+=======
+   "rev": "6f7d05f4955eb5af9799d828b697251bb2c9c0b8",
+>>>>>>> d07763cfa0fab36c6dbd18a62dc92d2e9c8e73ca
    "name": "batteries",
    "manifestFile": "lake-manifest.json",
    "inputRev": "main",

@@ -2,7 +2,7 @@ import Mathlib
 
 universe u v
 
-variable {k : Type u} [Field k]
+variable {R : Type u} [CommRing k]
 
 variable {V : Type v} [AddCommGroup V] [Module k V] [FiniteDimensional k V]
 
