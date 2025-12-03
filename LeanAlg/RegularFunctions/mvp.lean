@@ -19,7 +19,6 @@ example (I : Type) (f : I →₀ M) (p : M → Prop) (hadd : ∀ x y : M, p x �
     intro i _
     exact hI i
 
-
 theorem SymmetricAlgebra.induction_basis [Module.Free R M] (σ : Type ω) [Fintype σ]
     (b : Module.Basis σ R M)
     {motive : SymmetricAlgebra R M → Prop}
@@ -38,11 +37,10 @@ theorem SymmetricAlgebra.induction_basis [Module.Free R M] (σ : Type ω) [Finty
     case base =>
       intro i _
       rw [ map_smul, Algebra.smul_def ]
-      apply mul
-      · apply algebraMap
-      · apply basis
-  SymmetricAlgebra.induction R M (motive := motive) algebraMap this mul add a
-
+      apply mul _ _
+      case a => apply algebraMap 
+      case a => apply basis
+  SymmetricAlgebra.induction R M algebraMap this mul add a
 
 @[simp]
 def MvPolynomialToSymmetricAlgebra [Module.Free R M] (ι : Type ω) [Fintype ι]
