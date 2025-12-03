@@ -23,7 +23,7 @@ def ProductBilinForm (β₁ : BilinForm k V₁) (β₂ : BilinForm k V₂) :
       (LinearMap.snd _ _ V₂)
   ψ₁ + ψ₂ 
 
-notation:100 lform:100 "×[bil]" rform:100 =>
+notation:100 lform:100 " ×b " rform:100 =>
   ProductBilinForm lform rform
 
 @[simp]
@@ -57,24 +57,21 @@ example (β : BilinForm k V) (W₁ W₂ : Subspace k V) : BilinForm k (W₁ × W
 noncomputable
 def InternalDirSum (β : BilinForm k V) (W₁ W₂ : Subspace k V)
   (hc : IsCompl W₁ W₂)
-  (ho : W₁ ⟂[β] W₂) : 
-  (W₁ × W₂) ≃[k,β_[|W₁] ×[bil] β_[|W₂],β] V :=
+  (ho : OrthogonalSubsets β W₁ W₂) : 
+  (W₁ × W₂) ≃[k,(β.restrict W₁) ×b (β.restrict W₂),β] V :=
     { Submodule.prodEquivOfIsCompl W₁ W₂ hc with
       compat := by 
-        rintro ⟨x₁,x₂⟩ ⟨y₁,y₂⟩
-        simp_all
-        have z1 : β x₁ y₂ = 0 := (ho x₁ y₂).1 -- And.elim (fun x _ => x) (ho x₁ y₂)
-        have z2 : β x₂ y₁ = 0 := (ho y₁ x₂).2 -- And.elim (fun _ y => y) (ho y₁ x₂)
+        rintro ⟨⟨x₁,hx₁⟩,⟨x₂,hx₂⟩⟩ 
+        rintro ⟨⟨y₁,hy₁⟩,⟨y₂,hy₂⟩⟩
+        simp_all only [OrthogonalSubsets, SetLike.mem_coe, product_bilin_form_apply,
+          BilinForm.restrict_apply, domRestrict_apply, Submodule.coe_prodEquivOfIsCompl,
+          AddHom.toFun_eq_coe, coe_toAddHom, coprod_apply, Submodule.subtype_apply, map_add,
+          add_apply]           
+        have z1 : β x₁ y₂ = 0 := (ho x₁ hx₁ y₂ hy₂).1 -- And.elim (fun x _ => x) (ho x₁ y₂)
+        have z2 : β x₂ y₁ = 0 := (ho y₁ hy₁ x₂ hx₂).2 -- And.elim (fun _ y => y) (ho y₁ x₂)
         rw [ z1, z2 ]        
         ring
      }
 
-
-example (W : Set V) (w : W) : ∃ x, x ∈ W := by
-  rcases w with ⟨x,hx⟩ 
-  use x
-
-example (W : Submodule k V) (β : BilinForm k V) : BilinForm k W := β_[|W] 
-  
   
   
