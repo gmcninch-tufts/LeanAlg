@@ -13,15 +13,11 @@ example (a b c : ℝ) : c * b * a = b * (a * c) := by
 example (a b c : ℝ) : a * (b * c) = b * (a * c) := by
   sorry
 
+-------------------------
 
+variable (a b : ℝ)
 
-variable {α : Type*}
-variable (s t u : Set α)
-open Set
-
-example (h : s ⊆ t) : s ∩ u ⊆ t ∩ u := by
-  rw [subset_def, inter_def, inter_def]
-  rw [subset_def] at h
-  simp only [mem_setOf]
-  rintro x ⟨xs, xu⟩
-  exact ⟨h _ xs, xu⟩
+example (h : a < b) : ¬b < a := by
+  intro h'
+  have : a < a := lt_trans h h'
+  apply lt_irrefl a this
