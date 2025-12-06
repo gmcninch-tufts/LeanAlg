@@ -1,26 +1,29 @@
 import Mathlib
 
-variable {α : Type} [DecidableEq α]
-
-structure Edge (α : Type) [DecidableEq α] where
-  endpoints : Multiset α
+structure Edge (β : Type) where
+  id : Option ℕ
+  endpoints : Multiset β
   pf : Multiset.card endpoints = 2
-
+deriving DecidableEq
 
 -- we can construct loops or ordinary edges...
-example : Edge ℕ := Edge.mk {1,1} (by norm_num)
-example : Edge ℕ := Edge.mk {1,2} (by norm_num)
+example : Edge ℕ := Edge.mk (Option.none) {1,1} (by norm_num)
+example : Edge ℕ := Edge.mk (Option.none) {1,2} (by norm_num)
 
 -- here is a maybe easier way of constructing an edge
 @[simp]
-def mkedge (a b : α) : Edge α :=
-  Edge.mk {a,b} (by norm_num)
+def mkedge (id : Option ℕ) (a b : α) : Edge α :=
+  Edge.mk id {a,b} (by norm_num)
 
-def vertex1 : Edge String := mkedge "a" "b"
-def vertex2 : Edge String := mkedge "aa" "aa"
+@[simp]
+def edge_from_pair (id : Option ℕ) (x : α × α) : Edge α :=
+  match x with
+  | ⟨ a,b ⟩ => mkedge id a b
 
-#eval vertex2.endpoints
-#check vertex2.pf
+def vertex1 : Edge String := mkedge Option.none "a" "b"
+def vertex2 : Edge String := mkedge Option.none "a" "bb"
+
+example : vertex1 ≠ vertex2 := by decide
 
 /- `incident a e` is the proposition that
 the edge `e` is incident to the vertex `a`.
@@ -29,23 +32,30 @@ the edge `e` is incident to the vertex `a`.
 def incident (a : α) (e : Edge α) : Prop :=
   a ∈ e.endpoints
 
-noncomputable
-def incidentBool (a : α) (e : Edge α) : Bool :=
-  List.elem a (Multiset.toList e.endpoints)
+-- Create a decidable instance for `incident`
+instance incidentDecPred [DecidableEq α] (v : α) :
+    DecidablePred (incident v : Edge α → Prop) :=
+  fun e =>
+     Multiset.decidableMem v e.endpoints
 
-example : incident "aa" vertex2 := by
-  unfold vertex2
-  simp
+example : incident "bb" vertex2 := by decide
 
-structure Graph' (α : Type) [DecidableEq α] where
-  vertices : List α
-  edges : List (Edge α)
-  p : ∀ e ∈ edges, (Multiset.toList e.endpoints) ⊆ vertices
+structure Graph' (α : Type) where
+  vertices : Finset α
+  edges : Finset (Edge α)
+  p : ∀ e ∈ edges, ∀ a:α, incident a e → a ∈ vertices
+deriving DecidableEq
 
-noncomputable
-def incident_edges (G:Graph' α) (v : α) : List (Edge α) :=
-  List.filter (incidentBool v) G.edges
+def incident_edges [DecidableEq α] (G : Graph' α) (v : α) : Finset (Edge α) :=
+  { e ∈ G.edges | (incident v) e }
 
-noncomputable
-def degree (G : Graph' α) (v : α) (pv : v ∈ G.vertices) : ℕ :=
-  List.length (incident_edges G v)
+def degree [DecidableEq α] (G : Graph' α) (v : α) (pv : v ∈ G.vertices) : ℕ :=
+  Finset.card (incident_edges G v)
+
+def complete_graph {α} [DecidableEq α] (S : Finset α) {n : ℕ} {_ : Finset.card S = n} :
+    Graph' α where
+  vertices := S
+  edges := Finset.image (edge_from_pair Option.none) (Finset.product S S)
+  p := by sorry
+    -- intro e he a hae
+    -- simp at he
